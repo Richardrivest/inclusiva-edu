@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-violet-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>inclusiva.edu - Accesibilidad Educativa Universal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 27, 75, 0.6); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
+    </style>
+</head>
+<body class="h-full flex flex-col bg-gradient-to-br from-violet-950 via-slate-950 to-purple-950 text-slate-100 overflow-x-hidden selection:bg-blue-600 selection:text-white">
+
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <header class="bg-violet-900/50 backdrop-blur-md border-b border-violet-800/50 sticky top-0 z-40 px-4 py-3 shadow-lg shadow-purple-950/50">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-violet-600 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 font-bold text-2xl border border-blue-400/30 shrink-0">
+                    <i class="fa-solid fa-universal-access"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white via-purple-100 to-blue-200 bg-clip-text text-transparent">
+                        inclusiva<span class="text-blue-400">.edu</span>
+                    </h1>
+                    <p class="text-xs text-purple-200/90 font-medium">Plataforma de Accesibilidad e Inclusión Educativa</p>
+                    <p class="text-[11px] text-blue-300 font-semibold tracking-wide mt-0.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-award text-amber-400"></i>
+                        <span>Creado por: Mag. Norma Espíndola</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-violet-950/80 p-1.5 rounded-xl border border-violet-800/70 shadow-inner">
+                <button type="button" id="btn-view-teacher" onclick="switchView('teacher')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-600/30">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Vista Docente</span>
+                </button>
+                <button type="button" id="btn-view-student" onclick="switchView('student')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-violet-200 hover:text-white transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Vista Estudiante</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2 bg-violet-950/90 border border-violet-800/60 px-3 py-1.5 rounded-full shadow-sm">
+                <span id="live-indicator-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                <span id="live-indicator-text" class="text-xs font-medium text-purple-300">En Espera</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
+
+        <div id="view-teacher-container" class="space-y-6">
+
+            <div class="bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xl shadow-purple-950/40 space-y-4">
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                    <div class="md:col-span-6 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-book text-base"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <label for="select-subject" class="block text-xs font-bold text-blue-300 mb-1 tracking-wide">MATERIA ACTIVA</label>
+                            <select id="select-subject" onchange="onSubjectChange()" class="w-full bg-violet-950/90 border border-violet-700/80 rounded-xl px-3.5 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="md:col-span-6 flex items-center gap-2 justify-start md:justify-end flex-wrap">
+                        <button type="button" onclick="openModal('modal-create-subject')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Crear Materia</span>
+                        </button>
+                        <button type="button" onclick="openModal('modal-repository')" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white border border-blue-500/40 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md">
+                            <i class="fa-solid fa-folder-open text-amber-300"></i>
+                            <span>Repositorio</span>
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-violet-800/60">
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                    <div class="md:col-span-5 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/40 text-purple-300 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-clock-rotate-left text-base"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <label for="select-class" class="block text-xs font-bold text-purple-300 mb-1 tracking-wide">SESIÓN / CLASE</label>
+                            <select id="select-class" onchange="onClassChange()" class="w-full bg-violet-950/90 border border-violet-700/80 rounded-xl px-3.5 py-2 text-sm text-white font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="md:col-span-7 flex items-center gap-2 justify-start md:justify-end flex-wrap">
+                        <button type="button" onclick="createNewClassSession()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white border border-blue-400/30 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-blue-600/20">
+                            <i class="fa-solid fa-square-plus"></i>
+                            <span>+ Nueva Clase</span>
+                        </button>
+                        <button type="button" onclick="openShareModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/40">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span>Compartir Clase</span>
+                        </button>
+                        <button type="button" onclick="exportCurrentClass()" class="px-3.5 py-2 bg-blue-700 hover:bg-blue-600 text-white border border-blue-400/40 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md">
+                            <i class="fa-solid fa-file-export"></i>
+                            <span>Exportar Informe</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <div class="lg:col-span-7 bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-400 animate-pulse"></span>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chalkboard text-blue-400"></i>
+                                Pizarra Transcrita de Clase
+                            </h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="clearWhiteboardText()" class="px-2.5 py-1 text-xs text-purple-200 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Limpiar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 bg-violet-950/90 p-3 rounded-xl border border-violet-800/70">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <button type="button" id="btn-toggle-dictation" onclick="toggleDictation()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30">
+                                    <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                                    <span id="mic-btn-text">Iniciar Transcripción</span>
+                                </button>
+                            </div>
+                            <div class="text-xs text-purple-200/80 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-info text-blue-400"></i>
+                                <span>Comandos: <i>"punto aparte", "coma", "nueva línea"</i></span>
+                            </div>
+                        </div>
+
+                        <div id="interim-speech-bar" class="hidden text-xs bg-blue-950/80 border border-blue-500/40 text-blue-200 px-3 py-1.5 rounded-lg flex items-center gap-2 animate-pulse">
+                            <i class="fa-solid fa-waveform text-blue-400"></i>
+                            <span class="font-semibold text-blue-300">Escuchando:</span>
+                            <span id="interim-speech-text" class="italic text-white">...</span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex-1 min-h-[350px]">
+                        <textarea id="teacher-whiteboard" oninput="onWhiteboardInput(this.value)" placeholder="El texto dictado por el docente aparecerá aquí en tiempo real... También puedes escribir o editar manualmente." class="w-full h-full min-h-[350px] bg-violet-950/90 border border-violet-800/80 rounded-xl p-4 text-slate-100 text-sm leading-relaxed focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none font-sans custom-scrollbar"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                        <button type="button" onclick="generateAISummary()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 border border-blue-400/30 transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Sintetizar Clase con IA</span>
+                        </button>
+                        <button type="button" onclick="generateAIActivities()" class="w-full py-2.5 px-4 bg-blue-700 hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-700/30 border border-blue-400/30 transition-all">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Generar Actividades de Evaluación</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-6">
+
+                    <div class="bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-brain text-blue-400"></i>
+                                Resumen e Ideas Clave (IA)
+                            </h3>
+                            <button type="button" onclick="clearSummaryText()" class="px-2.5 py-1 text-xs text-purple-200 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Limpiar</span>
+                            </button>
+                        </div>
+                        <div id="teacher-summary-box" class="bg-violet-950/90 border border-violet-800/80 rounded-xl p-4 min-h-[120px] text-xs text-purple-100 leading-relaxed custom-scrollbar max-h-[220px] overflow-y-auto">
+                            <p class="text-purple-300/60 italic">Presiona "Sintetizar Clase con IA" para obtener un resumen adaptado con los puntos conceptuales más importantes.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-clipboard-question text-purple-300"></i>
+                                Actividades Generadas
+                            </h3>
+                            <button type="button" onclick="clearActivities()" class="px-2.5 py-1 text-xs text-purple-200 hover:text-rose-300 hover:bg-rose-500/20 rounded-lg transition-all flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Limpiar</span>
+                            </button>
+                        </div>
+                        <div id="teacher-activities-box" class="bg-violet-950/90 border border-violet-800/80 rounded-xl p-4 min-h-[140px] text-xs text-purple-100 space-y-3 custom-scrollbar max-h-[240px] overflow-y-auto">
+                            <p class="text-purple-300/60 italic">Genera cuestionarios adaptados a la sesión en cualquier momento.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-comments text-blue-400"></i>
+                                Dudas de Estudiantes
+                            </h3>
+                            <span id="questions-badge" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">0 consultas</span>
+                        </div>
+                        <div id="teacher-questions-box" class="bg-violet-950/90 border border-violet-800/80 rounded-xl p-3 min-h-[120px] text-xs text-purple-100 space-y-2 custom-scrollbar max-h-[200px] overflow-y-auto">
+                            <p class="text-purple-300/60 italic">Las preguntas enviadas por los estudiantes aparecerán aquí durante la clase.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="view-student-container" class="hidden space-y-6">
+
+            <div class="bg-violet-900/50 border border-violet-800/60 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-600/30">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h2 id="student-class-title" class="text-base font-bold text-white">Clase en Vivo</h2>
+                        <p id="student-class-subtitle" class="text-xs text-blue-200">Sincronizado con el dictado del docente</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 bg-violet-950/80 p-1.5 rounded-xl border border-violet-800/70">
+                    <span class="text-xs text-purple-200 font-medium px-2">Accesibilidad:</span>
+                    <button type="button" onclick="adjustStudentFontSize(-1)" class="w-8 h-8 rounded-lg bg-blue-700 text-white hover:bg-blue-600 text-xs font-bold flex items-center justify-center">A-</button>
+                    <button type="button" onclick="adjustStudentFontSize(1)" class="w-8 h-8 rounded-lg bg-blue-700 text-white hover:bg-blue-600 text-xs font-bold flex items-center justify-center">A+</button>
+                    <button type="button" onclick="toggleStudentHighContrast()" class="w-8 h-8 rounded-lg bg-blue-700 text-amber-300 hover:bg-blue-600 text-xs font-bold flex items-center justify-center">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <div class="lg:col-span-7 bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chalkboard text-blue-400"></i>
+                            Transcripción en Vivo
+                        </h3>
+                        <span class="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Sincronizando
+                        </span>
+                    </div>
+
+                    <div id="student-whiteboard-container" class="bg-violet-950/90 border border-violet-800/80 rounded-xl p-5 min-h-[380px] leading-relaxed custom-scrollbar max-h-[500px] overflow-y-auto">
+                        <p id="student-whiteboard-text" class="text-slate-100 text-sm whitespace-pre-wrap">Esperando inicio de clase por parte del docente...</p>
+                    </div>
+
+                    <div class="pt-2">
+                        <form onsubmit="submitStudentQuestion(event)" class="flex items-center gap-2">
+                            <input type="text" id="input-student-question" placeholder="Escribe tu duda o pregunta para el profesor..." class="flex-1 bg-violet-950/90 border border-violet-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 border border-blue-400/30 shrink-0">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Enviar Duda</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-violet-900/40 border border-violet-800/60 backdrop-blur-md rounded-2xl p-5 shadow-xl shadow-purple-950/40 flex flex-col gap-4">
+                    
+                    <div class="flex border-b border-violet-800/60 pb-2 gap-2">
+                        <button type="button" id="tab-btn-student-activities" onclick="switchStudentTab('activities')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white transition-all shadow-md">
+                            <i class="fa-solid fa-list-check mr-1.5"></i> Actividades
+                        </button>
+                        <button type="button" id="tab-btn-student-summary" onclick="switchStudentTab('summary')" class="flex-1 py-2 rounded-lg text-xs font-bold text-purple-200 hover:text-white transition-all">
+                            <i class="fa-solid fa-brain mr-1.5"></i> Resumen IA
+                        </button>
+                    </div>
+
+                    <div id="student-tab-activities" class="space-y-3 custom-scrollbar max-h-[420px] overflow-y-auto min-h-[250px]">
+                        <div id="student-activities-feed" class="text-xs text-purple-100 space-y-3">
+                            <p class="text-purple-300/60 italic">No hay actividades publicadas para esta sesión aún.</p>
+                        </div>
+                    </div>
+
+                    <div id="student-tab-summary" class="hidden space-y-3 custom-scrollbar max-h-[420px] overflow-y-auto min-h-[250px]">
+                        <div id="student-summary-feed" class="bg-violet-950/90 border border-violet-800/80 rounded-xl p-4 text-xs text-purple-100 leading-relaxed whitespace-pre-wrap">
+                            <p class="text-purple-300/60 italic">El resumen elaborado por el docente aparecerá aquí en cuanto sea generado.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <div id="modal-create-subject" class="fixed inset-0 z-50 bg-violet-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-violet-900 border border-violet-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-violet-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-blue-400"></i>
+                    Crear Nueva Materia
+                </h3>
+                <button type="button" onclick="closeModal('modal-create-subject')" class="text-purple-300 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleCreateSubjectSubmit(event)" class="space-y-4">
+                <div>
+                    <label for="input-subject-name" class="block text-xs font-semibold text-purple-200 mb-1">Nombre de la Materia</label>
+                    <input type="text" id="input-subject-name" required placeholder="Ej: Lengua y Literatura, Historia Argentina..." class="w-full bg-violet-950 border border-violet-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="input-subject-level" class="block text-xs font-semibold text-purple-200 mb-1">Año / Nivel / Curso</label>
+                    <input type="text" id="input-subject-level" required placeholder="Ej: 1° Año A, Nivel Secundario, 3er Semestre..." class="w-full bg-violet-950 border border-violet-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-create-subject')" class="px-4 py-2 bg-violet-950 text-purple-200 hover:bg-violet-800 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-blue-600/30 border border-blue-400/30">Guardar Materia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-share-class" class="fixed inset-0 z-50 bg-violet-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-violet-900 border border-violet-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-violet-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-blue-400"></i>
+                    Compartir Clase con Estudiantes
+                </h3>
+                <button type="button" onclick="closeModal('modal-share-class')" class="text-purple-300 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-xs text-purple-200 leading-relaxed">
+                    Comparte este enlace o permite que los alumnos escaneen el código QR con su celular para conectarse a la clase en vivo.
+                </p>
+
+                <div class="flex flex-col items-center justify-center bg-violet-950 p-4 rounded-xl border border-violet-800">
+                    <div id="qr-code-box" class="bg-white p-3 rounded-lg shadow-md mb-2"></div>
+                    <span class="text-[11px] text-purple-300">Escanea con la cámara del celular</span>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="input-share-url" class="block text-[11px] font-semibold text-purple-300">ENLACE DIRECTO DE CLASE</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="input-share-url" readonly class="flex-1 bg-violet-950 border border-violet-800 rounded-xl px-3 py-2 text-xs text-blue-300 font-mono focus:outline-none">
+                        <button type="button" onclick="copyShareUrl()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md shrink-0 flex items-center gap-1.5 border border-blue-400/30">
+                            <i class="fa-solid fa-copy"></i>
+                            <span>Copiar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-violet-950/80 border border-violet-800/80 rounded-xl p-3 text-[11px] text-purple-200 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5 text-blue-300">
+                        <i class="fa-solid fa-lightbulb text-amber-300"></i>
+                        Prueba la Vista de Estudiante:
+                    </p>
+                    <p>Haz clic abajo para cambiar la interfaz a Vista Estudiante y comprobar cómo se sincroniza el contenido en vivo.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-violet-800 pt-3">
+                <button type="button" onclick="testStudentViewFromModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-md border border-blue-400/30">
+                    Ir a Vista Estudiante
+                </button>
+                <button type="button" onclick="closeModal('modal-share-class')" class="px-4 py-2 bg-violet-950 text-purple-200 hover:bg-violet-800 rounded-xl text-xs font-semibold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-repository" class="fixed inset-0 z-50 bg-violet-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-violet-900 border border-violet-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-violet-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-amber-300"></i>
+                    Repositorio de Materias y Sesiones
+                </h3>
+                <button type="button" onclick="closeModal('modal-repository')" class="text-purple-300 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="repository-list-container" class="space-y-3 max-h-[350px] overflow-y-auto custom-scrollbar p-1">
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="button" onclick="closeModal('modal-repository')" class="px-4 py-2 bg-violet-950 text-purple-200 hover:bg-violet-800 rounded-xl text-xs font-semibold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.appState = {
+            currentView: 'teacher',
+            subjects: [],
+            activeSubjectId: null,
+            activeClassId: null,
+            whiteboardText: '',
+            summaryText: '',
+            activities: [],
+            questions: [],
+            isDictating: false,
+            studentFontSize: 14,
+            studentHighContrast: false,
+            studentTab: 'activities'
+        };
+
+        let recognition = null;
+        let isStartingRecognition = false;
+        let restartTimer = null;
+        let broadcastChannel = null;
+        let lastAppendedPhrase = '';
+        let lastAppendedTime = 0;
+        let isSubmittingQuestion = false;
+
+        window.onload = function() {
+            initBroadcastChannel();
+            loadStateFromStorage();
+            ensureActiveSubjectAndClass();
+            initSpeechRecognition();
+            checkUrlHashParams();
+            renderUI();
+        };
+
+        function initBroadcastChannel() {
+            try {
+                if ('BroadcastChannel' in window) {
+                    broadcastChannel = new BroadcastChannel('inclusiva_edu_channel');
+                    broadcastChannel.onmessage = (event) => {
+                        if (event.data && event.data.type === 'STATE_UPDATE') {
+                            const payload = event.data.payload;
+                            if (payload.activeSubjectId === window.appState.activeSubjectId &&
+                                payload.activeClassId === window.appState.activeClassId) {
+                                window.appState.whiteboardText = payload.whiteboardText;
+                                window.appState.summaryText = payload.summaryText;
+                                window.appState.activities = payload.activities || [];
+                                window.appState.questions = payload.questions || [];
+                                renderWhiteboardFeed();
+                                renderSummaryFeed();
+                                renderActivitiesFeed();
+                                renderQuestionsFeed();
+                            }
+                        }
+                    };
+                }
+            } catch (e) {
+                console.warn('BroadcastChannel not available:', e);
+            }
+        }
+
+        function broadcastStateUpdate() {
+            if (broadcastChannel) {
+                broadcastChannel.postMessage({
+                    type: 'STATE_UPDATE',
+                    payload: {
+                        activeSubjectId: window.appState.activeSubjectId,
+                        activeClassId: window.appState.activeClassId,
+                        whiteboardText: window.appState.whiteboardText,
+                        summaryText: window.appState.summaryText,
+                        activities: window.appState.activities,
+                        questions: window.appState.questions
+                    }
+                });
+            }
+        }
+
+        function saveState() {
+            try {
+                const dataToSave = {
+                    subjects: window.appState.subjects,
+                    activeSubjectId: window.appState.activeSubjectId,
+                    activeClassId: window.appState.activeClassId,
+                    whiteboardText: window.appState.whiteboardText,
+                    summaryText: window.appState.summaryText,
+                    activities: window.appState.activities,
+                    questions: window.appState.questions
+                };
+                localStorage.setItem('inclusiva_edu_data', JSON.stringify(dataToSave));
+                broadcastStateUpdate();
+            } catch (e) {
+                console.error('Save state error:', e);
+            }
+        }
+
+        function loadStateFromStorage() {
+            try {
+                const saved = localStorage.getItem('inclusiva_edu_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    window.appState.subjects = parsed.subjects || [];
+                    window.appState.activeSubjectId = parsed.activeSubjectId || null;
+                    window.appState.activeClassId = parsed.activeClassId || null;
+                    window.appState.whiteboardText = parsed.whiteboardText || '';
+                    window.appState.summaryText = parsed.summaryText || '';
+                    window.appState.activities = parsed.activities || [];
+                    window.appState.questions = parsed.questions || [];
+                }
+            } catch (e) {
+                console.error('Load state error:', e);
+            }
+        }
+
+        function ensureActiveSubjectAndClass() {
+            if (!window.appState.subjects || window.appState.subjects.length === 0) {
+                const defaultSubj = {
+                    id: 'subj_demo',
+                    name: 'Materia Ejemplo (Demostración)',
+                    level: '1° Año Secundario',
+                    classes: [
+                        { id: 'class_1', name: 'Clase 1: Introducción General', date: new Date().toISOString() }
+                    ]
+                };
+                window.appState.subjects = [defaultSubj];
+                window.appState.activeSubjectId = 'subj_demo';
+                window.appState.activeClassId = 'class_1';
+            } else if (!window.appState.activeSubjectId) {
+                window.appState.activeSubjectId = window.appState.subjects[0].id;
+                const activeSubj = window.appState.subjects[0];
+                if (activeSubj.classes && activeSubj.classes.length > 0) {
+                    window.appState.activeClassId = activeSubj.classes[0].id;
+                }
+            }
+            saveState();
+        }
+
+        function checkUrlHashParams() {
+            const hash = window.location.hash;
+            if (hash && hash.includes('view=student')) {
+                window.appState.currentView = 'student';
+                const params = new URLSearchParams(hash.replace('#', ''));
+                const subjId = params.get('subject');
+                const classId = params.get('class');
+                if (subjId) window.appState.activeSubjectId = subjId;
+                if (classId) window.appState.activeClassId = classId;
+            }
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn('Speech Recognition is not supported in this browser.');
+                return;
+            }
+
+            try {
+                recognition = new SpeechRecognition();
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                recognition.continuous = !isMobile;
+                recognition.interimResults = true;
+                recognition.lang = 'es-ES';
+
+                recognition.onstart = function() {
+                    window.appState.isDictating = true;
+                    isStartingRecognition = false;
+                    updateMicUI();
+                    showToast('Dictado por voz conectado y escuchando', 'success');
+                };
+
+                recognition.onerror = function(event) {
+                    console.warn('Speech recognition error:', event.error);
+                    isStartingRecognition = false;
+
+                    if (event.error === 'no-speech' || event.error === 'network') {
+                        scheduleRecognitionRestart(300);
+                        return;
+                    }
+
+                    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                        window.appState.isDictating = false;
+                        updateMicUI();
+                        showToast('Permiso de micrófono denegado. Revisa tu navegador.', 'error');
+                        return;
+                    }
+
+                    if (event.error !== 'aborted') {
+                        showToast('Aviso de micrófono: ' + event.error, 'warning');
+                    }
+                };
+
+                recognition.onend = function() {
+                    isStartingRecognition = false;
+                    hideInterimSpeechBar();
+
+                    if (window.appState.isDictating) {
+                        scheduleRecognitionRestart(300);
+                    } else {
+                        updateMicUI();
+                    }
+                };
+
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcriptSegment = event.results[i][0].transcript;
+
+                        if (event.results[i].isFinal) {
+                            hideInterimSpeechBar();
+                            const processedText = processVoiceCommands(transcriptSegment);
+                            appendSpeechToWhiteboard(processedText);
+                        } else {
+                            interimTranscript += transcriptSegment;
+                        }
+                    }
+
+                    if (interimTranscript.trim()) {
+                        showInterimSpeechBar(interimTranscript);
+                    }
+                };
+            } catch (e) {
+                console.error('Failed to initialize Speech Recognition:', e);
+            }
+        }
+
+        function scheduleRecognitionRestart(delayMs = 300) {
+            if (restartTimer) clearTimeout(restartTimer);
+            restartTimer = setTimeout(() => {
+                if (window.appState.isDictating && recognition && !isStartingRecognition) {
+                    try {
+                        isStartingRecognition = true;
+                        recognition.start();
+                    } catch (e) {
+                        isStartingRecognition = false;
+                        if (!e.message.includes('already started')) {
+                            console.warn('Restart exception:', e);
+                        }
+                    }
+                }
+            }, delayMs);
+        }
+
+        function showInterimSpeechBar(text) {
+            const bar = document.getElementById('interim-speech-bar');
+            const target = document.getElementById('interim-speech-text');
+            if (bar && target) {
+                target.innerText = text;
+                bar.classList.remove('hidden');
+            }
+        }
+
+        function hideInterimSpeechBar() {
+            const bar = document.getElementById('interim-speech-bar');
+            if (bar) bar.classList.add('hidden');
+        }
+
+        function processVoiceCommands(text) {
+            if (!text) return '';
+            let processed = text;
+
+            processed = processed.replace(/(?:punto\s+y\s+aparte|punto\s+aparte)/gi, '.\n');
+            processed = processed.replace(/(?:punto\s+y\s+seguido|punto\s+seguido)/gi, '. ');
+            processed = processed.replace(/\bcoma\b/gi, ',');
+            processed = processed.replace(/\bpunto\b/gi, '.');
+            processed = processed.replace(/(?:nueva\s+l[íi]nea|nuevo\s+p[áa]rrafo)/gi, '\n');
+
+            if (/(?:borrar\s+oraci[óo]n|borrar\s+[úu]ltima\s+l[íi]nea|borrar\s+l[íi]nea)/gi.test(processed)) {
+                let current = window.appState.whiteboardText || '';
+                let lines = current.split('\n');
+                lines.pop();
+                window.appState.whiteboardText = lines.join('\n');
+                saveState();
+                renderWhiteboardFeed();
+                showToast('Última línea borrada por comando de voz', 'info');
+                return '';
+            }
+
+            if (/(?:borrar\s+todo|limpiar\s+pizarra)/gi.test(processed)) {
+                clearWhiteboardText();
+                return '';
+            }
+
+            return processed;
+        }
+
+        function removeOverlap(currentText, newText) {
+            let curr = (currentText || '').trim();
+            let next = (newText || '').trim();
+            if (!curr || !next) return next;
+
+            const normCurr = curr.toLowerCase().replace(/[^\w\s]/g, '');
+            const normNext = next.toLowerCase().replace(/[^\w\s]/g, '');
+
+            const recentCurr = normCurr.slice(-Math.max(normNext.length * 2, 120));
+            if (recentCurr.includes(normNext)) {
+                return '';
+            }
+
+            const wordsCurr = normCurr.split(/\s+/).filter(Boolean);
+            const wordsNext = normNext.split(/\s+/).filter(Boolean);
+            const origWordsNext = next.split(/\s+/).filter(Boolean);
+
+            let maxOverlapWords = 0;
+            const maxCheck = Math.min(wordsCurr.length, wordsNext.length);
+
+            for (let len = 1; len <= maxCheck; len++) {
+                const currSuffix = wordsCurr.slice(-len).join(' ');
+                const nextPrefix = wordsNext.slice(0, len).join(' ');
+                if (currSuffix === nextPrefix) {
+                    maxOverlapWords = len;
+                }
+            }
+
+            if (maxOverlapWords > 0) {
+                if (maxOverlapWords >= wordsNext.length) {
+                    return '';
+                }
+                return origWordsNext.slice(maxOverlapWords).join(' ');
+            }
+
+            return next;
+        }
+
+        function appendSpeechToWhiteboard(text) {
+            if (!text || !text.trim()) return;
+            let cleanedText = text.trim();
+
+            let current = window.appState.whiteboardText || '';
+
+            cleanedText = removeOverlap(current, cleanedText);
+            if (!cleanedText || !cleanedText.trim()) return;
+
+            const now = Date.now();
+            if (cleanedText.toLowerCase() === lastAppendedPhrase.toLowerCase() && (now - lastAppendedTime) < 3500) {
+                return;
+            }
+
+            lastAppendedPhrase = cleanedText;
+            lastAppendedTime = now;
+
+            let formattedText = cleanedText;
+            if (current.length === 0 || current.endsWith('\n') || current.endsWith('. ')) {
+                formattedText = formattedText.charAt(0).toUpperCase() + formattedText.slice(1);
+            }
+
+            if (current.length > 0 && !current.endsWith('\n') && !current.endsWith(' ') && !formattedText.startsWith(',') && !formattedText.startsWith('.')) {
+                current += ' ';
+            }
+
+            window.appState.whiteboardText = current + formattedText;
+            saveState();
+            renderWhiteboardFeed();
+        }
+
+        function toggleDictation() {
+            if (!recognition) {
+                initSpeechRecognition();
+                if (!recognition) {
+                    showToast('Tu navegador no soporta Reconocimiento de Voz (Web Speech API). Te recomendamos usar Google Chrome o Microsoft Edge.', 'warning');
+                    return;
+                }
+            }
+
+            if (window.appState.isDictating) {
+                window.appState.isDictating = false;
+                if (restartTimer) clearTimeout(restartTimer);
+                try { recognition.stop(); } catch(e){}
+                hideInterimSpeechBar();
+                updateMicUI();
+                showToast('Dictado en pausa', 'info');
+            } else {
+                window.appState.isDictating = true;
+                updateMicUI();
+                try {
+                    isStartingRecognition = true;
+                    recognition.start();
+                } catch(e) {
+                    isStartingRecognition = false;
+                    console.warn('Mic start caught error:', e);
+                }
+            }
+        }
+
+        function updateMicUI() {
+            const btn = document.getElementById('btn-toggle-dictation');
+            const icon = document.getElementById('mic-icon');
+            const text = document.getElementById('mic-btn-text');
+            const dot = document.getElementById('live-indicator-dot');
+            const dotText = document.getElementById('live-indicator-text');
+
+            if (!btn) return;
+
+            if (window.appState.isDictating) {
+                btn.className = 'px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-rose-600/30 transition-all animate-pulse border border-rose-400/30';
+                icon.className = 'fa-solid fa-microphone-lines';
+                text.innerText = 'Pausar Transcripción';
+
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+                if (dotText) {
+                    dotText.innerText = 'Transmitiendo en Vivo';
+                    dotText.className = 'text-xs font-bold text-emerald-400';
+                }
+            } else {
+                btn.className = 'px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30';
+                icon.className = 'fa-solid fa-microphone';
+                text.innerText = 'Iniciar Transcripción';
+
+                if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+                if (dotText) {
+                    dotText.innerText = 'En Espera';
+                    dotText.className = 'text-xs font-medium text-purple-300';
+                }
+            }
+        }
+
+        function renderUI() {
+            renderViewMode();
+            renderSubjectSelect();
+            renderClassSelect();
+            renderWhiteboardFeed();
+            renderSummaryFeed();
+            renderActivitiesFeed();
+            renderQuestionsFeed();
+            updateMicUI();
+        }
+
+        function renderViewMode() {
+            const teacherContainer = document.getElementById('view-teacher-container');
+            const studentContainer = document.getElementById('view-student-container');
+            const btnTeacher = document.getElementById('btn-view-teacher');
+            const btnStudent = document.getElementById('btn-view-student');
+
+            if (window.appState.currentView === 'teacher') {
+                teacherContainer.classList.remove('hidden');
+                studentContainer.classList.add('hidden');
+
+                btnTeacher.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-600/30';
+                btnStudent.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-violet-200 hover:text-white transition-all duration-200 flex items-center gap-2';
+            } else {
+                teacherContainer.classList.add('hidden');
+                studentContainer.classList.remove('hidden');
+
+                btnStudent.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-2 bg-blue-600 text-white shadow-md shadow-blue-600/30';
+                btnTeacher.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-violet-200 hover:text-white transition-all duration-200 flex items-center gap-2';
+            }
+        }
+
+        function switchView(mode) {
+            window.appState.currentView = mode;
+            renderViewMode();
+            if (mode === 'student') {
+                showToast('Modo Vista Estudiante activo', 'info');
+            }
+        }
+
+        function renderSubjectSelect() {
+            const select = document.getElementById('select-subject');
+            if (!select) return;
+            select.innerHTML = '';
+
+            window.appState.subjects.forEach(subj => {
+                const opt = document.createElement('option');
+                opt.value = subj.id;
+                opt.innerText = `${subj.name} (${subj.level || 'General'})`;
+                if (subj.id === window.appState.activeSubjectId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderClassSelect() {
+            const select = document.getElementById('select-class');
+            if (!select) return;
+            select.innerHTML = '';
+
+            const activeSubj = window.appState.subjects.find(s => s.id === window.appState.activeSubjectId);
+            if (activeSubj && activeSubj.classes) {
+                activeSubj.classes.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.innerText = c.name;
+                    if (c.id === window.appState.activeClassId) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function onSubjectChange() {
+            const select = document.getElementById('select-subject');
+            window.appState.activeSubjectId = select.value;
+            const activeSubj = window.appState.subjects.find(s => s.id === select.value);
+            if (activeSubj && activeSubj.classes && activeSubj.classes.length > 0) {
+                window.appState.activeClassId = activeSubj.classes[0].id;
+            }
+            saveState();
+            renderUI();
+        }
+
+        function onClassChange() {
+            const select = document.getElementById('select-class');
+            window.appState.activeClassId = select.value;
+            saveState();
+            renderUI();
+        }
+
+        function renderWhiteboardFeed() {
+            const teacherArea = document.getElementById('teacher-whiteboard');
+            const studentText = document.getElementById('student-whiteboard-text');
+
+            const content = window.appState.whiteboardText || '';
+
+            if (teacherArea && teacherArea !== document.activeElement) {
+                teacherArea.value = content;
+            }
+
+            if (studentText) {
+                studentText.innerText = content.trim() ? content : 'Esperando inicio de clase por parte del docente...';
+            }
+        }
+
+        function onWhiteboardInput(val) {
+            window.appState.whiteboardText = val;
+            saveState();
+            renderWhiteboardFeed();
+        }
+
+        function clearWhiteboardText() {
+            window.appState.whiteboardText = '';
+            saveState();
+            renderWhiteboardFeed();
+            showToast('Pizarra limpiada', 'info');
+        }
+
+        function clearSummaryText() {
+            window.appState.summaryText = '';
+            saveState();
+            renderSummaryFeed();
+            showToast('Resumen e Ideas Clave limpiado', 'info');
+        }
+
+        function clearActivities() {
+            window.appState.activities = [];
+            saveState();
+            renderActivitiesFeed();
+            showToast('Actividades limpiadas', 'info');
+        }
+
+        function renderSummaryFeed() {
+            const teacherBox = document.getElementById('teacher-summary-box');
+            const studentFeed = document.getElementById('student-summary-feed');
+            const summary = window.appState.summaryText || '';
+
+            const html = summary ? summary.replace(/\n/g, '<br>') : '<p class="text-purple-300/60 italic">No hay resumen disponible aún para esta clase.</p>';
+
+            if (teacherBox) teacherBox.innerHTML = html;
+            if (studentFeed) studentFeed.innerHTML = html;
+        }
+
+        function renderActivitiesFeed() {
+            const teacherBox = document.getElementById('teacher-activities-box');
+            const studentFeed = document.getElementById('student-activities-feed');
+            const activities = window.appState.activities || [];
+
+            if (activities.length === 0) {
+                const emptyText = '<p class="text-purple-300/60 italic">No hay actividades publicadas para esta sesión aún.</p>';
+                if (teacherBox) teacherBox.innerHTML = emptyText;
+                if (studentFeed) studentFeed.innerHTML = emptyText;
+                return;
+            }
+
+            let html = '';
+            activities.forEach((act, idx) => {
+                html += `<div class="p-3 bg-violet-950/90 border border-violet-800/80 rounded-xl space-y-2">`;
+                html += `<p class="font-bold text-blue-300">Pregunta ${idx + 1}: ${act.question}</p>`;
+                if (act.options && act.options.length > 0) {
+                    html += `<ul class="space-y-1 pl-2">`;
+                    act.options.forEach((opt, oIdx) => {
+                        html += `<li class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-blue-900/60 text-[10px] flex items-center justify-center text-blue-300 font-bold border border-blue-500/30">${String.fromCharCode(65 + oIdx)}</span> <span>${opt}</span></li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+            });
+
+            if (teacherBox) teacherBox.innerHTML = html;
+            if (studentFeed) studentFeed.innerHTML = html;
+        }
+
+        function renderQuestionsFeed() {
+            const box = document.getElementById('teacher-questions-box');
+            const badge = document.getElementById('questions-badge');
+            const questions = window.appState.questions || [];
+
+            if (badge) badge.innerText = `${questions.length} consultas`;
+
+            if (questions.length === 0) {
+                if (box) box.innerHTML = '<p class="text-purple-300/60 italic">Las preguntas enviadas por los estudiantes aparecerán aquí durante la clase.</p>';
+                return;
+            }
+
+            let html = '';
+            questions.forEach(q => {
+                html += `<div class="p-2.5 bg-violet-950/90 border border-violet-800/80 rounded-lg space-y-1">`;
+                html += `<div class="flex items-center justify-between text-[10px] text-purple-300">`;
+                html += `<span class="font-bold text-blue-400"><i class="fa-solid fa-user-graduate"></i> Estudiante</span>`;
+                html += `<span>${q.time}</span>`;
+                html += `</div>`;
+                html += `<p class="text-slate-100">${q.text}</p>`;
+                html += `</div>`;
+            });
+
+            if (box) box.innerHTML = html;
+        }
+
+        async function generateAISummary() {
+            const whiteboard = (window.appState.whiteboardText || '').trim();
+            if (!whiteboard) {
+                showToast('Primero debes dictar o escribir contenido en la pizarra.', 'warning');
+                return;
+            }
+
+            showToast('Generando síntesis e ideas clave con IA...', 'info');
+
+            const systemPrompt = "Eres un asistente educativo inclusivo. Analiza la siguiente transcripción de clase y genera un resumen claro, estructurado en viñetas simples y fácil de comprender para estudiantes.";
+            const userQuery = `Transcripción de clase:\n${whiteboard}`;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    window.appState.summaryText = text;
+                    saveState();
+                    renderSummaryFeed();
+                    showToast('¡Resumen de clase sintetizado!', 'success');
+                } else {
+                    throw new Error('Respuesta de IA no válida.');
+                }
+            } catch (e) {
+                console.error('Error IA summary:', e);
+                window.appState.summaryText = `• Resumen de Sesión:\n  - Se revisaron los conceptos fundamentales expuestos en la pizarra.\n  - Puntos clave: ${whiteboard.substring(0, 150)}...\n  - Repasar los términos principales para la próxima clase.`;
+                saveState();
+                renderSummaryFeed();
+                showToast('Resumen generado (Modo Simplificado)', 'success');
+            }
+        }
+
+        async function generateAIActivities() {
+            const whiteboard = (window.appState.whiteboardText || '').trim();
+            if (!whiteboard) {
+                showToast('Primero debes contar con texto en la pizarra.', 'warning');
+                return;
+            }
+
+            showToast('Elaborando cuestionario de evaluación...', 'info');
+
+            const systemPrompt = "Genera 3 preguntas de opción múltiple con 3 opciones cada una basadas en la clase. Retorna ÚNICAMENTE un JSON estricto en este formato: [{\"question\": \"...\", \"options\": [\"A\", \"B\", \"C\"]}]";
+            const userQuery = `Clase:\n${whiteboard}`;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsed = JSON.parse(jsonText);
+                    window.appState.activities = parsed;
+                    saveState();
+                    renderActivitiesFeed();
+                    showToast('¡Actividades de evaluación generadas!', 'success');
+                } else {
+                    throw new Error('JSON de actividades inválido');
+                }
+            } catch (e) {
+                console.error('Error AI activities:', e);
+                window.appState.activities = [
+                    { question: "¿Cuál es el concepto principal tratado hoy en la sesión?", options: ["El tema explicado en la pizarra", "Un tema secundario no mencionado", "Ninguna de las anteriores"] },
+                    { question: "¿Cómo se relaciona la explicación con la materia?", options: ["Aporta bases conceptuales clave", "Es un ejemplo aislado", "No tiene relación"] }
+                ];
+                saveState();
+                renderActivitiesFeed();
+                showToast('Actividades creadas (Modo Simplificado)', 'success');
+            }
+        }
+
+        function submitStudentQuestion(e) {
+            e.preventDefault();
+            if (isSubmittingQuestion) return;
+
+            const input = document.getElementById('input-student-question');
+            if (!input || !input.value.trim()) return;
+
+            isSubmittingQuestion = true;
+
+            const newQ = {
+                text: input.value.trim(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            window.appState.questions = window.appState.questions || [];
+            window.appState.questions.unshift(newQ);
+            input.value = '';
+            saveState();
+            renderQuestionsFeed();
+            showToast('¡Duda enviada al docente!', 'success');
+
+            setTimeout(() => {
+                isSubmittingQuestion = false;
+            }, 600);
+        }
+
+        function switchStudentTab(tab) {
+            window.appState.studentTab = tab;
+            const tabAct = document.getElementById('student-tab-activities');
+            const tabSum = document.getElementById('student-tab-summary');
+            const btnAct = document.getElementById('tab-btn-student-activities');
+            const btnSum = document.getElementById('tab-btn-student-summary');
+
+            if (tab === 'activities') {
+                tabAct.classList.remove('hidden');
+                tabSum.classList.add('hidden');
+                btnAct.className = 'flex-1 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white transition-all shadow-md';
+                btnSum.className = 'flex-1 py-2 rounded-lg text-xs font-bold text-purple-200 hover:text-white transition-all';
+            } else {
+                tabSum.classList.remove('hidden');
+                tabAct.classList.add('hidden');
+                btnSum.className = 'flex-1 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white transition-all shadow-md';
+                btnAct.className = 'flex-1 py-2 rounded-lg text-xs font-bold text-purple-200 hover:text-white transition-all';
+            }
+        }
+
+        function adjustStudentFontSize(delta) {
+            window.appState.studentFontSize = Math.max(12, Math.min(24, window.appState.studentFontSize + delta));
+            const box = document.getElementById('student-whiteboard-text');
+            if (box) box.style.fontSize = `${window.appState.studentFontSize}px`;
+        }
+
+        function toggleStudentHighContrast() {
+            window.appState.studentHighContrast = !window.appState.studentHighContrast;
+            const container = document.getElementById('student-whiteboard-container');
+            if (container) {
+                if (window.appState.studentHighContrast) {
+                    container.className = 'bg-black border-2 border-amber-400 rounded-xl p-5 min-h-[380px] leading-relaxed custom-scrollbar max-h-[500px] overflow-y-auto text-amber-300 font-bold';
+                } else {
+                    container.className = 'bg-violet-950/90 border border-violet-800/80 rounded-xl p-5 min-h-[380px] leading-relaxed custom-scrollbar max-h-[500px] overflow-y-auto';
+                }
+            }
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleCreateSubjectSubmit(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('input-subject-name');
+            const levelInput = document.getElementById('input-subject-level');
+
+            if (!nameInput || !nameInput.value.trim()) return;
+
+            const newSubjId = 'subj_' + Date.now();
+            const newClassId = 'class_' + Date.now();
+
+            const newSubj = {
+                id: newSubjId,
+                name: nameInput.value.trim(),
+                level: levelInput ? levelInput.value.trim() : 'General',
+                classes: [
+                    { id: newClassId, name: 'Clase 1: Presentación', date: new Date().toISOString() }
+                ]
+            };
+
+            window.appState.subjects.push(newSubj);
+            window.appState.activeSubjectId = newSubjId;
+            window.appState.activeClassId = newClassId;
+            window.appState.whiteboardText = '';
+            window.appState.summaryText = '';
+            window.appState.activities = [];
+            window.appState.questions = [];
+
+            nameInput.value = '';
+            if (levelInput) levelInput.value = '';
+
+            saveState();
+            closeModal('modal-create-subject');
+            renderUI();
+            showToast('¡Materia creada correctamente!', 'success');
+        }
+
+        function createNewClassSession() {
+            const activeSubj = window.appState.subjects.find(s => s.id === window.appState.activeSubjectId);
+            if (!activeSubj) return;
+
+            const nextNum = (activeSubj.classes ? activeSubj.classes.length : 0) + 1;
+            const newClassId = 'class_' + Date.now();
+
+            const newClass = {
+                id: newClassId,
+                name: `Clase ${nextNum}: Sesión del ${new Date().toLocaleDateString('es-ES')}`,
+                date: new Date().toISOString()
+            };
+
+            if (!activeSubj.classes) activeSubj.classes = [];
+            activeSubj.classes.push(newClass);
+
+            window.appState.activeClassId = newClassId;
+            window.appState.whiteboardText = '';
+            window.appState.summaryText = '';
+            window.appState.activities = [];
+            window.appState.questions = [];
+
+            saveState();
+            renderUI();
+            showToast(`¡Nivel/Sesión "Clase ${nextNum}" iniciada!`, 'success');
+        }
+
+        function openShareModal() {
+            ensureActiveSubjectAndClass();
+            const urlInput = document.getElementById('input-share-url');
+            const qrBox = document.getElementById('qr-code-box');
+
+            const fullUrl = `${window.location.origin}${window.location.pathname}#view=student&subject=${window.appState.activeSubjectId}&class=${window.appState.activeClassId}`;
+
+            if (urlInput) urlInput.value = fullUrl;
+
+            if (qrBox) {
+                qrBox.innerHTML = '';
+                try {
+                    if (typeof QRCode !== 'undefined') {
+                        new QRCode(qrBox, {
+                            text: fullUrl,
+                            width: 140,
+                            height: 140,
+                            colorDark : "#000000",
+                            colorLight : "#ffffff",
+                            correctLevel : QRCode.CorrectLevel.H
+                        });
+                    } else {
+                        qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(fullUrl)}" alt="QR Code">`;
+                    }
+                } catch(e) {
+                    qrBox.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(fullUrl)}" alt="QR Code">`;
+                }
+            }
+
+            openModal('modal-share-class');
+        }
+
+        function copyShareUrl() {
+            const input = document.getElementById('input-share-url');
+            if (!input) return;
+
+            input.select();
+            input.setSelectionRange(0, 99999);
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(input.value);
+                } else {
+                    document.execCommand('copy');
+                }
+                showToast('¡Enlace de clase copiado al portapapeles!', 'success');
+            } catch(e) {
+                document.execCommand('copy');
+                showToast('¡Enlace copiado!', 'success');
+            }
+        }
+
+        function testStudentViewFromModal() {
+            closeModal('modal-share-class');
+            switchView('student');
+        }
+
+        function exportCurrentClass() {
+            const activeSubj = window.appState.subjects.find(s => s.id === window.appState.activeSubjectId);
+            const activeClass = activeSubj?.classes?.find(c => c.id === window.appState.activeClassId);
+
+            const subjName = activeSubj ? activeSubj.name : 'Materia';
+            const subjLevel = activeSubj ? (activeSubj.level || 'General') : 'General';
+            const className = activeClass ? activeClass.name : 'Clase';
+            const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            const whiteboard = (window.appState.whiteboardText || '').trim();
+            const summary = (window.appState.summaryText || '').trim();
+            const activities = window.appState.activities || [];
+            const questions = window.appState.questions || [];
+
+            if (!whiteboard && !summary && activities.length === 0) {
+                showToast('No hay contenido suficiente registrado para exportar.', 'warning');
+                return;
+            }
+
+            let reportText = `==================================================================\n`;
+            reportText += `INCLUSIVA.EDU - INFORME COMPLETO Y ACCESIBLE DE LA CLASE\n`;
+            reportText += `Creado por: Mag. Norma Espíndola\n`;
+            reportText += `==================================================================\n\n`;
+            reportText += `Materia: ${subjName}\n`;
+            reportText += `Año / Nivel: ${subjLevel}\n`;
+            reportText += `Sesión: ${className}\n`;
+            reportText += `Fecha de Informe: ${dateStr}\n`;
+            reportText += `Plataforma: inclusiva.edu (Inclusión y Accesibilidad Educativa)\n`;
+            reportText += `\n==================================================================\n`;
+            reportText += `1. TRANSCRIPCIÓN COMPLETA DE LA PIZARRA DE CLASE\n`;
+            reportText += `==================================================================\n\n`;
+            reportText += whiteboard ? `${whiteboard}\n\n` : `(Sin transcripción de pizarra)\n\n`;
+
+            reportText += `==================================================================\n`;
+            reportText += `2. RESUMEN SINTETIZADO CON INTELIGENCIA ARTIFICIAL\n`;
+            reportText += `==================================================================\n\n`;
+            reportText += summary ? `${summary}\n\n` : `(No se generó resumen sintetizado en esta clase)\n\n`;
+
+            reportText += `==================================================================\n`;
+            reportText += `3. ACTIVIDADES Y CUESTIONARIO DE EVALUACIÓN (${activities.length})\n`;
+            reportText += `==================================================================\n\n`;
+            if (activities.length > 0) {
+                activities.forEach((act, idx) => {
+                    reportText += `Pregunta ${idx + 1}:\n`;
+                    reportText += `${act.question}\n`;
+                    if (act.options && act.options.length > 0) {
+                        act.options.forEach((opt, oIdx) => {
+                            reportText += `   ${String.fromCharCode(65 + oIdx)}) ${opt}\n`;
+                        });
+                    }
+                    reportText += `\n`;
+                });
+            } else {
+                reportText += `(Sin actividades de evaluación generadas)\n\n`;
+            }
+
+            reportText += `==================================================================\n`;
+            reportText += `4. REGISTRO DE DUDAS Y PREGUNTAS DE ESTUDIANTES (${questions.length})\n`;
+            reportText += `==================================================================\n\n`;
+            if (questions.length > 0) {
+                questions.forEach((q) => {
+                    reportText += `[${q.time}] Estudiante: ${q.text}\n`;
+                });
+                reportText += `\n`;
+            } else {
+                reportText += `(Sin consultas enviadas por alumnos)\n\n`;
+            }
+
+            reportText += `==================================================================\n`;
+            reportText += `Generado por inclusiva.edu - Accesibilidad Educativa Universal\n`;
+
+            const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const safeSubj = (subjName + '_' + className).replace(/[^a-zA-Z0-9_\-]/g, '_');
+            a.download = `${safeSubj}_InformeCompleto_${new Date().toISOString().slice(0, 10)}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('¡Informe completo descargado con éxito!', 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            let bg = 'bg-violet-900 text-white border border-violet-700';
+            let iconClass = 'fa-info-circle';
+
+            if (type === 'success') { bg = 'bg-blue-600 text-white border border-blue-400/40'; iconClass = 'fa-check-circle'; }
+            if (type === 'warning') { bg = 'bg-amber-600 text-white border border-amber-400/40'; iconClass = 'fa-exclamation-triangle'; }
+            if (type === 'error') { bg = 'bg-rose-600 text-white border border-rose-400/40'; iconClass = 'fa-circle-xmark'; }
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl ${bg} text-xs font-semibold pointer-events-auto transition-all duration-300 opacity-0 transform translate-y-2`;
+            
+            const icon = document.createElement('i');
+            icon.className = `fa-solid ${iconClass}`;
+            
+            const span = document.createElement('span');
+            span.innerText = message;
+
+            toast.appendChild(icon);
+            toast.appendChild(span);
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-2');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
